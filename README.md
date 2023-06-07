@@ -1,5 +1,5 @@
 # scripts
-'M2 scripts' collect all of the scripts used in our experiment. The main aim was to collected data from the native British and American respondents.
+'Scripts' collect all of the scripts used in our experiment. The main aim was to collected data from the native British and American respondents.
 
 Scripts file includes the following: 
 1/ csv files: data collected from respondents for the experiment.
