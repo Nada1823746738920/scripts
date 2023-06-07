@@ -1,0 +1,123 @@
+install.packages("dtplyr")
+library(dtplyr)
+install.packages("dbplyr")
+library(dbplyr)
+install.packages("data.table")  
+library(data.table)
+install.packages("dplyr")
+library(dplyr)
+install.packages("tidyr")
+library(tidyr)
+install.packages("irr")
+library(irr)
+GAJudge01 = read.table("Val-01-Am.csv", header = T, sep = ";")
+colnames(GAJudge01)[1] ="judge_name"
+ResGA01 = (GAJudge01 %>% mutate(judge_name = recode(judge_name, '1discovery' = 'ResGA01'))) 
+ResGA01                                         
+GAJudge02 = read.table("Justin-03-AM.csv", header = T, sep = ";") 
+colnames(GAJudge02)[1] ="judge_name"
+ResGA02 = (GAJudge02 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResGA02'))) 
+ResGA02                                          
+GAJudge03 = read.table("Liz-05-Am.csv", header = T, sep = ";") 
+colnames(GAJudge03)[1] ="judge_name"
+ResGA03 = (GAJudge03 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResGA03'))) 
+ResGA03  
+GAJudge04 = read.table("Sam-02-Am.csv", header = T, sep = ";") 
+colnames(GAJudge04)[1] ="judge_name"
+ResGA04 = (GAJudge04 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResGA04')))
+ResGA04                                          
+RPJudge01 = read.table("Tori-04-Br.csv", header = T, sep = ";")
+colnames(RPJudge01)[1] ="judge_name" #change the name of subject
+ResRP01 = (RPJudge01 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResRP01'))) 
+ResRP01                                          
+RPJudge02 = read.table("Lydia-06-Br.csv", header = T, sep = ";")
+colnames(RPJudge02)[1] ="judge_name" #change the name of subject
+ResRP02 = (RPJudge02 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResRP02'))) 
+ResRP02                                         
+RPJudge03 = read.table("goerge-07-Br.csv", header = T, sep = ";")
+colnames(RPJudge03)[1] ="judge_name" #change the name of subject
+ResRP03 = (RPJudge03 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResRP03')))
+ResRP03                                          
+RPJudge04 = read.table("georgia-08-Br.csv", header = T, sep = ";")
+colnames(RPJudge04)[1] ="judge_name" #change the name of subject
+ResRP04 = (RPJudge04 %>% mutate( judge_name = recode(judge_name, '1discovery' = 'ResRP04')))
+ResRP04   
+Tab8judges = rbind(ResRP01, ResRP02, ResRP03, ResRP04, ResGA01, ResGA02, ResGA03, ResGA04)
+Tab8judgesnoRT <- subset(Tab8judges, select = - c(reactionTime))
+largeD = spread(Tab8judgesnoRT, judge_name, response)
+#------------------------------------------------------------------------------------------
+largeD$ResGA01[largeD$ResGA01 >= "British"] <- 1
+largeD$ResGA01[largeD$ResGA01 >= "American"] <- -1
+
+largeD$ResGA02[largeD$ResGA02 >= "British"] <- 1
+largeD$ResGA02[largeD$ResGA02 >= "American"] <- -1
+
+largeD$ResGA03[largeD$ResGA03 >= "British"] <- 1
+largeD$ResGA03[largeD$ResGA03 >= "American"] <- -1
+
+largeD$ResGA04[largeD$ResGA04 >= "British"] <- 1
+largeD$ResGA04[largeD$ResGA04 >= "American"] <- -1
+
+largeD$ResRP01[largeD$ResRP01 >= "British"] <- 1
+largeD$ResRP01[largeD$ResRP01 >= "American"] <- -1
+
+largeD$ResRP02[largeD$ResRP02 >= "British"] <- 1
+largeD$ResRP02[largeD$ResRP02 >= "American"] <- -1
+
+largeD$ResRP03[largeD$ResRP03 >= "British"] <- 1
+largeD$ResRP03[largeD$ResRP03 >= "American"] <- -1
+
+largeD$ResRP04[largeD$ResRP04 >= "British"] <- 1
+largeD$ResRP04[largeD$ResRP04 >= "American"] <- -1
+#-------------------------------------------------------------
+agreement77 = matrix(nrow = 8,ncol = 8)
+rownames(agreement77) = unique(Tab8judgesnoRT$judge_name)
+colnames(agreement77) = unique(Tab8judgesnoRT$judge_name)
+
+#-------------------------------------------------------------------
+for (idx in 2:9){
+  data1 = largeD[,idx]
+  for (jdx in 2:9){
+    data2 = largeD[,jdx]
+    currentData = cbind(data1,data2)
+    agreement77[idx-1,jdx-1] = as.numeric(agree(currentData)$value)
+  }
+}
+#---------------------------------------------------------------
+data = (largeD[, 2:9])
+kappam.fleiss(data)
+agree(data, tolerance=0)
+oneScore = rowMeans(data)
+tapply(oneScore, largeD$stimulus, mean)
+dat <- as.numeric(as.character(data$ResGA01)) 
+mean(dat)
+dat1 <- as.numeric(as.character(largeD$ResGA01)) 
+mean(dat1)
+dat2 <- as.numeric(as.character(largeD$ResGA02)) 
+mean(dat2)
+dat3 <- as.numeric(as.character(largeD$ResGA03)) 
+mean(dat3)
+dat4 <- as.numeric(as.character(largeD$ResGA04)) 
+mean(dat4)
+datRP1 <- as.numeric(as.character(largeD$ResRP01)) 
+mean(datRP1)
+datRP2 <- as.numeric(as.character(largeD$ResRP02)) 
+mean(datRP2)
+datRP3 <- as.numeric(as.character(largeD$ResRP03)) 
+mean(datRP3)
+datRP4 <- as.numeric(as.character(largeD$ResRP04)) 
+mean(datRP4)
+data.frame("rater" = c("ResGA01", "ResGA02", "ResGA03", "ResGA04", "ResRP01", "ResRP02", "ResRP03", "ResRP04"), 
+             "mean values" = c("0.43", "0.10", "-0.05", "0.32", "-0.12", "0.21", "0.25", "-0.09"))
+#-------------------------------------------
+library(ggplot2)
+library(plot.matrix)
+library(reshape2)
+asCorResults = as.cor(agreement77)
+asCorResults1 = round(asCorResults, digits = 2)
+meltMat = melt(asCorResults1)
+colnames(meltMat) = c("judge1", "judge2", "percent_agreement")
+ggplot(data = meltMat, aes(x=judge1, y=judge2, fill=percent_agreement)) + 
+     geom_tile() + geom_text(aes(label=percent_agreement)) +
+      theme(axis.text.x= element_text(size = 10), axis.text.y= element_text(size = 10), 
+              axis.title.x = element_blank(), axis.title.y = element_blank())
